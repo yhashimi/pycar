@@ -9,3 +9,6 @@ right.forward()
 sleep(2)
 left.stop()
 right.stop()
+
+
+print("hello")
