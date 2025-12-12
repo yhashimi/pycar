@@ -1,0 +1,83 @@
+import keyboard
+from time import sleep
+import gpiozero
+
+class Motor:
+    def __init__(self, in1, in2, pwm):
+        self.in1 = gpiozero.OutputDevice(in1)
+        self.in2 = gpiozero.OutputDevice(in2)
+        self.pwm = gpiozero.PWMOutputDevice(pwm)
+
+    def forward(self, speed):
+        self.in1.on()
+        self.in2.off()
+        self.pwm.value = speed / 100
+
+    def backward(self, speed):
+        self.in1.off()
+        self.in2.on()
+        self.pwm.value = speed / 100
+
+    def stop(self):
+        self.in1.off()
+        self.in2.off()
+        self.pwm.value = 0
+
+
+class PyCar:
+    def __init__(self,
+                 left_in1, left_in2, left_pwm,
+                 right_in1, right_in2, right_pwm):
+
+        self.left_motor = Motor(left_in1, left_in2, left_pwm)
+        self.right_motor = Motor(right_in1, right_in2, right_pwm)
+
+    def forward(self, speed=50):
+        self.left_motor.forward(speed)
+        self.right_motor.forward(speed)
+
+    def backward(self, speed=50):
+        self.left_motor.backward(speed)
+        self.right_motor.backward(speed)
+
+    def left(self, speed=50):
+        self.left_motor.backward(speed)
+        self.right_motor.forward(speed)
+
+    def right(self, speed=50):
+        self.left_motor.forward(speed)
+        self.right_motor.backward(speed)
+
+    def stop(self):
+        self.left_motor.stop()
+        self.right_motor.stop()
+
+
+# ---------------------------
+#Pin-Einstellungen
+# ---------------------------
+car = PyCar(
+    left_in1=17, left_in2=27, left_pwm=22,
+    right_in1=23, right_in2=24, right_pwm=25
+)
+
+print("Steuerung von PyCar mit der Tastatur")
+print("W = vorne| S = hinten| A = links| D =rechts | Space = stop | Q =beenden")
+
+
+while True:
+    if keyboard.is_pressed("w"):
+        car.forward(60)
+    elif keyboard.is_pressed("s"):
+        car.backward(60)
+    elif keyboard.is_pressed("a"):
+        car.left(50)
+    elif keyboard.is_pressed("d"):
+        car.right(50)
+    elif keyboard.is_pressed("space"):
+        car.stop()
+    elif keyboard.is_pressed("q"):
+        car.stop()
+        break
+
+    sleep(0.05)
